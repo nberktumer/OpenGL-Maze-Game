@@ -1,6 +1,7 @@
 #include "BaseObject.h"
 
-BaseObject::BaseObject() {
+BaseObject::BaseObject(float x, float y, float z) {
+    this->position = vec3(x, y, z);
 	this->index = -1;
     this->model = mat4();
 }

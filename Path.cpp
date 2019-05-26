@@ -1,9 +1,9 @@
-#include "Wall.h"
+#include "Path.h"
 #include "World.h"
 
-Wall::Wall(float x, float y, float z) : BaseObject(x, y, z) {
+Path::Path(float x, float y, float z) : BaseObject(x, y, z) {
 	this->cubeVertexIndex = 0;
-	this->color = vec4(0.0f,1.0f,0.0f,1.0f);
+	this->color = vec4(0.3f,0.3f,0.3f,1.0f);
 
 	//Create a cube with 6 faces, similar to assignments.
 
@@ -21,11 +21,11 @@ Wall::Wall(float x, float y, float z) : BaseObject(x, y, z) {
 }
 
 
-Wall::~Wall() {
+Path::~Path() {
 }
 
 
-void Wall::quad(int i1, int i2, int i3, int i4, vec3 normal) {
+void Path::quad(int i1, int i2, int i3, int i4, vec3 normal) {
 
 	float x = position.x;
 	float y = position.y;
@@ -57,7 +57,7 @@ void Wall::quad(int i1, int i2, int i3, int i4, vec3 normal) {
 	cubePoints[cubeVertexIndex++] = vertices[i1];
 }
 
-void Wall::draw(GLint Model, GLint Color) {
+void Path::draw(GLint Model, GLint Color) {
 	glBindVertexArray(this->vao);
 	glUniformMatrix4fv(Model, 1, GL_TRUE, this->model);
 	glUniform4fv(Color, 1, this->color);

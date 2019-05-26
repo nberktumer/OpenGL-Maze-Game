@@ -8,17 +8,36 @@ World::World(GLuint program) {
             int value = map[i][j];
 
             switch (value) {
-            case 0: // Path
-                break;
-            case 1: // Wall
-                addObject(new Wall(i * cellSize, 0, j * cellSize));
-                break;
-            case 2: // Enterence
-                break;
-            case 3: // Exit
-                break;
-            default:
-                break;
+                case 0: // Path
+                    addObject(new Path(i * cellSize, -Wall::HEIGHT / 2 + Path::HEIGHT / 2, j * cellSize));
+                    break;
+                case 1: // Wall
+                    addObject(new Wall(i * cellSize, 0, j * cellSize));
+                    break;
+                case 2: { // Enterence
+                    vec3 cameraDirection;
+                    if(i == 0) {
+                        cameraDirection = vec3(1.0, 0.0, 0.0);
+                    } else if(i == worldHeight - 1) {
+                        cameraDirection = vec3(-1.0, 0.0, 0.0);
+                    } else if(j == 0) {
+                        cameraDirection = vec3(0.0, 0.0, 1.0);
+                    } else {
+                        cameraDirection = vec3(0.0, 0.0, -1.0);
+                    }
+                    this->camera = new Camera(
+                        vec3(i * cellSize, 0, j * cellSize),
+                        cameraDirection,
+                        vec3(0, 1, 0)
+                    );
+                    addObject(new Path(i * cellSize, -Wall::HEIGHT / 2 + Path::HEIGHT / 2, j * cellSize));
+                    break;
+                }
+                case 3: // Exit
+                    addObject(new Path(i * cellSize, -Wall::HEIGHT / 2 + Path::HEIGHT / 2, j * cellSize));
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -60,38 +79,64 @@ void World::addObject(BaseObject *object) {
 	glEnableVertexAttribArray(vNormal);
 	glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(vertices.size() * sizeof(vec4)));
 }
-
-void World::removeObject(BaseObject *object, bool deletePointer) {
-	//delete the object from the vector and free its memory.
-
-	if (object->getVectorIndex() < 0) {
-		cout << "Invalid attempt at deleting object with index " << object->getVectorIndex() << endl;
-	}
-	else {
-		//Fix vector indices of next elements
-		for (int i = object->getVectorIndex() + 1; i < objects.size(); i++) {
-			BaseObject *obj = objects.at(i);
-			obj->setVectorIndex(obj->getVectorIndex() - 1);
-		}
-
-		objects.erase(objects.begin() + object->getVectorIndex());
-
-		//TODO
-		//delete object  ? 
-
-		if (deletePointer) {
-			cout << "Deleting pointer." << endl;
-			delete object;
-			object = NULL;
-		}
-	}
-}
  
-void World::drawObjects(GLint modelLoc, GLint viewLoc, GLint projectionLoc, GLint colorLoc) {
-
-	//Draw each object with different view/projection matrices depending on the type (UI or game object).
+void World::drawObjects(GLuint Model, GLuint Color) {
 	for (int i = 0; i < objects.size(); i++) {
 		BaseObject *obj = objects.at(i);
-		obj->draw(modelLoc, colorLoc);
+		obj->draw(Model, Color);
 	}
+}
+
+void World::moveForward(GLuint View, float amount) {
+    camera->moveForward(View, -amount, getBoundries());
+}
+
+void World::moveBackward(GLuint View, float amount) {
+    camera->moveForward(View, amount, getBoundries());
+}
+
+void World::moveRight(GLuint View, float amount) {
+    camera->moveRight(View, amount, getBoundries());
+}
+
+void World::moveLeft(GLuint View, float amount) {
+    camera->moveRight(View, -amount, getBoundries());
+}
+
+void World::rotateCamera(GLuint View, vec2 displacement) {
+    camera->rotate(View, displacement);
+}
+
+Boundry_t World::getBoundries() {
+    vec3 currentPosition = camera->getPosition();
+    int i = (currentPosition.x + cellSize / 2) / cellSize;
+    int j = (currentPosition.z + cellSize / 2) / cellSize;
+
+    Boundry_t boundries;
+    boundries.cellSize = cellSize;
+    boundries.center = vec3(i * cellSize, 0.0, j * cellSize);
+    
+    if(i == 0) {
+        boundries.bottom = 1;
+        boundries.top = map[i + 1][j];
+    } else if(i == worldHeight - 1) {
+        boundries.bottom = map[i - 1][j];
+        boundries.top = 1;
+    } else {
+        boundries.bottom = map[i - 1][j];
+        boundries.top = map[i + 1][j];
+    }
+
+    if(j == 0) {
+        boundries.left = 1;
+        boundries.right = map[i][j + 1];
+    } else if(j == worldWidth - 1) {
+        boundries.left = map[i][j - 1];
+        boundries.right = 1;
+    } else {
+        boundries.left = map[i][j - 1];
+        boundries.right = map[i][j + 1];
+    }
+    
+    return boundries;
 }

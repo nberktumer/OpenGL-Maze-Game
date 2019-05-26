@@ -15,8 +15,9 @@ class BaseObject {
         GLuint buffer;
         vector<vec4> vertices;
         vector<vec3> normals;
+        vec3 position;
 
-        BaseObject();
+        BaseObject(float x, float y, float z);
         ~BaseObject();
         
         virtual void draw(GLint modelLoc, GLint colorLoc) = 0;
