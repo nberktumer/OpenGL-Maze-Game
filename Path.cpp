@@ -1,9 +1,9 @@
 #include "Path.h"
 #include "World.h"
 
-Path::Path(float x, float y, float z) : BaseObject(x, y, z) {
-	this->cubeVertexIndex = 0;
-	this->color = vec4(0.3f,0.3f,0.3f,1.0f);
+Path::Path(GLuint texture, float x, float y, float z) : BaseObject(x, y, z) {
+	this->texture = texture;
+	this->index = 0;
 
 	//Create a cube with 6 faces, similar to assignments.
 
@@ -15,8 +15,9 @@ Path::Path(float x, float y, float z) : BaseObject(x, y, z) {
 	quad(3, 2, 1, 0, vec3(0.0, -1.0, 0.0)); // Bottom
 
 	for (int i = 0; i < numVertices; i++) {
-		this->vertices.push_back(cubePoints[i]);
-		this->normals.push_back(cubeNormals[i]);
+		this->vertices.push_back(points[i]);
+		this->normals.push_back(normal_pts[i]);
+        this->textures.push_back(tex_coords[i]);
 	}
 }
 
@@ -25,7 +26,7 @@ Path::~Path() {
 }
 
 
-void Path::quad(int i1, int i2, int i3, int i4, vec3 normal) {
+void Path::quad(int a, int b, int c, int d, vec3 normal) {
 
 	float x = position.x;
 	float y = position.y;
@@ -42,24 +43,34 @@ void Path::quad(int i1, int i2, int i3, int i4, vec3 normal) {
         vec4(x - World::cellSize / 2, y + HEIGHT / 2, z - World::cellSize / 2, 1.0)
 	};
 
-	cubeNormals[cubeVertexIndex] = normal;
-	cubePoints[cubeVertexIndex++] = vertices[i1];
-	cubeNormals[cubeVertexIndex] = normal;
-	cubePoints[cubeVertexIndex++] = vertices[i2];
-	cubeNormals[cubeVertexIndex] = normal;
-	cubePoints[cubeVertexIndex++] = vertices[i3];
+	normal_pts[index] = normal;
+	points[index] = vertices[a];
+	tex_coords[index++] = vec2(0.0, 0.0);
 
-	cubeNormals[cubeVertexIndex] = normal;
-	cubePoints[cubeVertexIndex++] = vertices[i3];
-	cubeNormals[cubeVertexIndex] = normal;
-	cubePoints[cubeVertexIndex++] = vertices[i4];
-	cubeNormals[cubeVertexIndex] = normal;
-	cubePoints[cubeVertexIndex++] = vertices[i1];
+	normal_pts[index] = normal;
+	points[index] = vertices[b];
+	tex_coords[index++] = vec2(0.0, 1.0);
+
+	normal_pts[index] = normal;
+	points[index] = vertices[c];
+	tex_coords[index++] = vec2(1.0, 1.0);
+
+	normal_pts[index] = normal;
+	points[index] = vertices[a];
+	tex_coords[index++] = vec2(0.0, 0.0);
+
+	normal_pts[index] = normal;
+	points[index] = vertices[c];
+	tex_coords[index++] = vec2(1.0, 1.0);
+
+	normal_pts[index] = normal;
+	points[index] = vertices[d];
+	tex_coords[index++] = vec2(1.0, 0.0);
 }
 
-void Path::draw(GLint Model, GLint Color) {
+void Path::draw(GLuint Model) {
 	glBindVertexArray(this->vao);
+    glBindTexture(GL_TEXTURE_2D, texture);
 	glUniformMatrix4fv(Model, 1, GL_TRUE, this->model);
-	glUniform4fv(Color, 1, this->color);
 	glDrawArrays(GL_TRIANGLES, 0, this->numVertices);
 }

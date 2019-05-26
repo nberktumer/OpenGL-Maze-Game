@@ -17,7 +17,7 @@ class World {
         World(GLuint program);
         ~World();
         void addObject(BaseObject* object);
-        void drawObjects(GLuint Model, GLuint Color);
+        void drawObjects(GLuint Model);
         void moveForward(GLuint View, float amount);
         void moveBackward(GLuint View, float amount);
         void moveRight(GLuint View, float amount);
@@ -25,6 +25,7 @@ class World {
         void rotateCamera(GLuint View, vec2 displacement);
     private:
         GLuint program;
+        GLuint textureList[2];
         vector<BaseObject*> objects;
         static constexpr const int worldWidth = 21;
         static constexpr const int worldHeight = 21;
@@ -61,6 +62,8 @@ class World {
         };
         Camera *camera;
         Boundry_t getBoundries();
+        void loadTextures();
+        GLubyte* readTexture(string path, int *width, int *height);
 };
 
 #endif

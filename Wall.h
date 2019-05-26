@@ -5,18 +5,18 @@
 
 class Wall : public BaseObject {
     public:
-        Wall(float x, float y, float z);
+        Wall(GLuint texture, float x, float y, float z);
         ~Wall();
-        void quad(int i1, int i2, int i3, int i4, vec3 normal);
-        void draw(GLint modelLoc, GLint colorLoc);
-        static constexpr float HEIGHT = 4.0;
+        void quad(int a, int b, int c, int d, vec3 normal);
+        void draw(GLuint Model);
+        static constexpr float HEIGHT = 6.0;
     private:
         static constexpr int numVertices = 36;
 
-        vec4 cubePoints[numVertices];
-        vec3 cubeNormals[numVertices];
-
-        int cubeVertexIndex;
+        vec4 points[numVertices];
+        vec3 normal_pts[numVertices];
+        vec2 tex_coords[numVertices];
+        int index;
 };
 
 #endif

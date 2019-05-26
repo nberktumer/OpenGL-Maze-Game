@@ -5,18 +5,19 @@
 
 class Path : public BaseObject {
     public:
-        Path(float x, float y, float z);
+        Path(GLuint texture, float x, float y, float z);
         ~Path();
-        void quad(int i1, int i2, int i3, int i4, vec3 normal);
-        void draw(GLint modelLoc, GLint colorLoc);
+        void quad(int a, int b, int c, int d, vec3 normal);
+        void draw(GLuint Model);
         static constexpr float HEIGHT = 0.1;
     private:
         static constexpr int numVertices = 36;
 
-        vec4 cubePoints[numVertices];
-        vec3 cubeNormals[numVertices];
+        vec4 points[numVertices];
+        vec3 normal_pts[numVertices];
+        vec2 tex_coords[numVertices];
 
-        int cubeVertexIndex;
+        int index;
 };
 
 #endif

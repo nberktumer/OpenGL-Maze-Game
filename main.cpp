@@ -23,7 +23,6 @@ vec2 previousMousePosition = vec2(0, 0);
 GLuint Projection;
 GLuint Model;
 GLuint View;
-GLuint Color;
 
 World *world;
 
@@ -38,7 +37,6 @@ void init() {
     Projection = glGetUniformLocation(program, "Projection");
     Model = glGetUniformLocation(program, "Model");
     View = glGetUniformLocation(program, "View");
-    Color = glGetUniformLocation(program, "Color");
 
     // Set current program object
     glUseProgram(program);
@@ -58,7 +56,7 @@ void init() {
 void display(void) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    world->drawObjects(Model, Color);
+    world->drawObjects(Model);
 
     glutSwapBuffers();
 }

@@ -10,24 +10,25 @@ using namespace std;
 class BaseObject {
     public:
         mat4 model;
-        vec4 color = vec4(1.0f, 0.0f, 0.0f, 1.0f);
         GLuint vao;
         GLuint buffer;
+        GLuint texture;
         vector<vec4> vertices;
         vector<vec3> normals;
+        vector<vec2> textures;
         vec3 position;
 
         BaseObject(float x, float y, float z);
         ~BaseObject();
         
-        virtual void draw(GLint modelLoc, GLint colorLoc) = 0;
+        virtual void draw(GLuint Model) = 0;
 
         int getVectorIndex();
         void setVectorIndex(int vectorIndex);
         vector<vec4> getVertices();
         vector<vec3> getNormals();
+        vector<vec2> getTextures();
         mat4 getModel();
-        void populateVertices(vector<vec4> vertices, vector<vec3> normals);
     private:
         int index;
 };
