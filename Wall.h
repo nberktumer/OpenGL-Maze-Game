@@ -5,7 +5,7 @@
 
 class Wall : public BaseObject {
     public:
-        Wall(GLuint texture, float x, float y, float z);
+        Wall(GLuint program, GLuint texture, float x, float y, float z);
         ~Wall();
         void quad(int a, int b, int c, int d, vec3 normal);
         void draw(GLuint Model);

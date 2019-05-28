@@ -1,7 +1,7 @@
 #include "Wall.h"
 #include "World.h"
 
-Wall::Wall(GLuint texture, float x, float y, float z) : BaseObject(x, y, z) {
+Wall::Wall(GLuint program, GLuint texture, float x, float y, float z) : BaseObject(program, x, y, z) {
 	this->index = 0;
 	this->texture = texture;
 
@@ -68,6 +68,11 @@ void Wall::quad(int a, int b, int c, int d, vec3 normal) {
 }
 
 void Wall::draw(GLuint Model) {
+    glUniform4fv(glGetUniformLocation(program, "AmbientProduct"), 1, World::light_ambient);
+	glUniform4fv(glGetUniformLocation(program, "DiffuseProduct"), 1, World::light_diffuse);
+	glUniform4fv(glGetUniformLocation(program, "SpecularProduct"), 1, World::light_specular);
+	glUniform1f(glGetUniformLocation(program, "Shininess"), material_shininess);
+	glUniform1i(glGetUniformLocation(program, "UseColor"), 0);
 	glBindVertexArray(this->vao);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glUniformMatrix4fv(Model, 1, GL_TRUE, this->model);

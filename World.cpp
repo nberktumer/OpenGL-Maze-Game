@@ -5,38 +5,62 @@ World::World(GLuint program) {
 
     loadTextures();
 
+    // Add Directional Light Source
+    GLuint lightLocation = glGetUniformLocation(program, "LightLocation");
+	GLuint lightPosition = glGetUniformLocation(program, "LightPosition");
+	GLuint ambientProduct = glGetUniformLocation(program, "AmbientProduct");
+	GLuint diffuseProduct = glGetUniformLocation(program, "DiffuseProduct");
+	GLuint specularProduct = glGetUniformLocation(program, "SpecularProduct");
+    GLuint shininess = glGetUniformLocation(program, "Shininess");
+    GLuint view = glGetUniformLocation(program, "View");
+
+    glUniform4fv( ambientProduct, 1, light_ambient );
+    glUniform4fv( diffuseProduct, 1, light_diffuse );
+    glUniform4fv( specularProduct, 1, light_specular );
+    glUniform1f( shininess, 256.0 );
+    glUniform4fv( lightPosition, 1, light_position );
+	glUniform3fv( lightLocation, 1, light_location );
+    
     for(int i = 0; i < worldHeight; i++) {
         for(int j = 0; j < worldWidth; j++) {
             int value = map[i][j];
 
             switch (value) {
                 case 0: // Path
-                    addObject(new Path(textureList[1], i * cellSize, -Wall::HEIGHT / 2 + Path::HEIGHT / 2, j * cellSize));
+                    addObject(new Path(program, textureList[1], i * cellSize, -Wall::HEIGHT / 2 + Path::HEIGHT / 2, j * cellSize));
                     break;
                 case 1: // Wall
-                    addObject(new Wall(textureList[0], i * cellSize, 0, j * cellSize));
+                    addObject(new Wall(program, textureList[0], i * cellSize, 0, j * cellSize));
                     break;
                 case 2: { // Enterence
                     vec3 cameraDirection;
                     if(i == 0) {
-                        cameraDirection = vec3(1.0, 0.0, 0.0);
-                    } else if(i == worldHeight - 1) {
                         cameraDirection = vec3(-1.0, 0.0, 0.0);
+                    } else if(i == worldHeight - 1) {
+                        cameraDirection = vec3(1.0, 0.0, 0.0);
                     } else if(j == 0) {
-                        cameraDirection = vec3(0.0, 0.0, 1.0);
-                    } else {
                         cameraDirection = vec3(0.0, 0.0, -1.0);
+                    } else {
+                        cameraDirection = vec3(0.0, 0.0, 1.0);
                     }
                     this->camera = new Camera(
+                        view,
                         vec3(i * cellSize, 0, j * cellSize),
                         cameraDirection,
                         vec3(0, 1, 0)
                     );
-                    addObject(new Path(textureList[1], i * cellSize, -Wall::HEIGHT / 2 + Path::HEIGHT / 2, j * cellSize));
+                    enterence = vec2(i, j);
+                    door1 = new Door(program, textureList[0], (i - 1) * cellSize, 0, (j - 1) * cellSize);
+                    door2 = new Door(program, textureList[0], (i + 1) * cellSize, 0, (j - 1) * cellSize);
+                    addObject(new Path(program, textureList[1], i * cellSize, -Wall::HEIGHT / 2 + Path::HEIGHT / 2, j * cellSize));
+                    addObject(door1);
+                    addObject(door2);
                     break;
                 }
                 case 3: // Exit
-                    addObject(new Path(textureList[1], i * cellSize, -Wall::HEIGHT / 2 + Path::HEIGHT / 2, j * cellSize));
+                    tropy = new Tropy(program, i * cellSize, -2, (j + 2) * cellSize);
+                    addObjectWithColor(tropy);
+                    addObject(new Path(program, textureList[1], i * cellSize, -Wall::HEIGHT / 2 + Path::HEIGHT / 2, j * cellSize));
                     break;
                 default:
                     break;
@@ -88,6 +112,40 @@ void World::addObject(BaseObject *object) {
 
     glEnableVertexAttribArray(vTexture);
 	glVertexAttribPointer(vTexture, 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(vertices.size() * sizeof(vec4) + normals.size() * sizeof(vec3)));
+}
+
+void World::addObjectWithColor(BaseObject *object) {
+	//add the object to vector for drawing later
+	//set the objects VAO and buffer its VBO with vertices and normals.
+
+	objects.push_back(object);
+	object->setVectorIndex(objects.size() - 1);
+
+	vector<vec4> vertices = object->getVertices();
+	vector<vec3> normals = object->getNormals();
+
+	GLuint vPosition = glGetAttribLocation(program, "vPosition");
+	GLuint vNormal = glGetAttribLocation(program, "vNormal");
+
+	glGenVertexArrays(1, &object->vao);
+
+	// Bind to Cube buffer
+	glBindVertexArray(object->vao);
+
+	// Cube buffer
+	glGenBuffers(1, &object->buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, object->buffer);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vec4) + normals.size() * sizeof(vec3), NULL, GL_STATIC_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(vec4), &vertices[0]);
+	glBufferSubData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vec4), normals.size() * sizeof(vec3), &normals[0]);
+
+	// Cube vertex arrays
+	glEnableVertexAttribArray(vPosition);
+	glVertexAttribPointer(vPosition, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+
+	glEnableVertexAttribArray(vNormal);
+	glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(vertices.size() * sizeof(vec4)));
+
 }
  
 void World::drawObjects(GLuint Model) {
@@ -210,4 +268,37 @@ GLubyte* World::readTexture(string path, int *width, int *height) {
     *height = m;
 
     return img;
+}
+
+bool World::closeDoors() {
+    door1->position.x += 0.01;
+    door2->position.x -= 0.01;
+
+    float xPos = enterence.x * cellSize - cellSize / 2;
+
+    return door1->position.x > xPos;
+}
+
+bool World::hasReachedTheEnd() {
+    vec3 currentPosition = camera->getPosition();
+    int i = (currentPosition.x + cellSize / 2) / cellSize;
+    int j = (currentPosition.z + cellSize / 2) / cellSize;
+
+    return map[i][j] == 3;
+}
+
+bool World::animateTheTropy() {
+    tropy->position.z -= 0.05;
+
+    vec3 currentPosition = camera->getPosition();
+    int i = (currentPosition.x + cellSize / 2) / cellSize;
+    int j = (currentPosition.z + cellSize / 2) / cellSize;
+
+    float zPos = (j + 1) * cellSize;
+    
+    return tropy->position.z < zPos;
+}
+
+void World::rotateTheTropy() {
+    tropy->rotation.y += 1;
 }

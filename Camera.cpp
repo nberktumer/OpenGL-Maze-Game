@@ -1,9 +1,12 @@
 #include "Camera.h"
 
-Camera::Camera(vec3 eye, vec3 viewDirection, vec3 up) {
+Camera::Camera(GLuint View, vec3 eye, vec3 viewDirection, vec3 up) {
     this->eye = eye;
     this->viewDirection = viewDirection;
     this->up = up;
+
+	mat4 view = LookAt(eye, eye + viewDirection, up);
+	glUniformMatrix4fv(View, 1, GL_TRUE, view);
 }
 
 

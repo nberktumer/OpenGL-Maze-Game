@@ -1,12 +1,11 @@
-#include "Path.h"
+#include "Door.h"
 #include "World.h"
 
-Path::Path(GLuint program, GLuint texture, float x, float y, float z) : BaseObject(program, x, y, z) {
-	this->texture = texture;
+Door::Door(GLuint program, GLuint texture, float x, float y, float z) : BaseObject(program, x, y, z) {
 	this->index = 0;
+	this->texture = texture;
 
 	//Create a cube with 6 faces, similar to assignments.
-
 	quad(0, 1, 5, 4, vec3(0.0, 0.0, 1.0)); // Front
 	quad(1, 2, 6, 5, vec3(1.0, 0.0, 0.0)); // Right
     quad(2, 3, 7, 6, vec3(0.0, 0.0, -1.0)); // Back
@@ -17,20 +16,20 @@ Path::Path(GLuint program, GLuint texture, float x, float y, float z) : BaseObje
 	for (int i = 0; i < numVertices; i++) {
 		this->vertices.push_back(points[i]);
 		this->normals.push_back(normal_pts[i]);
-        this->textures.push_back(tex_coords[i]);
+		this->textures.push_back(tex_coords[i]);
 	}
 }
 
 
-Path::~Path() {
+Door::~Door() {
 }
 
 
-void Path::quad(int a, int b, int c, int d, vec3 normal) {
+void Door::quad(int a, int b, int c, int d, vec3 normal) {
 
-	float x = position.x;
-	float y = position.y;
-	float z = position.z;
+	float x = 0;
+	float y = 0;
+	float z = 0;
 
 	vec4 vertices[8] = {
         vec4(x - World::cellSize / 2, y - HEIGHT / 2, z + World::cellSize / 2, 1.0),
@@ -68,14 +67,14 @@ void Path::quad(int a, int b, int c, int d, vec3 normal) {
 	tex_coords[index++] = vec2(1.0, 0.0);
 }
 
-void Path::draw(GLuint Model) {
+void Door::draw(GLuint Model) {
     glUniform4fv(glGetUniformLocation(program, "AmbientProduct"), 1, World::light_ambient);
 	glUniform4fv(glGetUniformLocation(program, "DiffuseProduct"), 1, World::light_diffuse);
 	glUniform4fv(glGetUniformLocation(program, "SpecularProduct"), 1, World::light_specular);
 	glUniform1f(glGetUniformLocation(program, "Shininess"), material_shininess);
 	glUniform1i(glGetUniformLocation(program, "UseColor"), 0);
 	glBindVertexArray(this->vao);
-    glBindTexture(GL_TEXTURE_2D, texture);
-	glUniformMatrix4fv(Model, 1, GL_TRUE, this->model);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glUniformMatrix4fv(Model, 1, GL_TRUE, Translate(position) * this->model);
 	glDrawArrays(GL_TRIANGLES, 0, this->numVertices);
 }

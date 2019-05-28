@@ -17,8 +17,10 @@ class BaseObject {
         vector<vec3> normals;
         vector<vec2> textures;
         vec3 position;
+        vec3 rotation;
+        GLuint program;
 
-        BaseObject(float x, float y, float z);
+        BaseObject(GLuint program, float x, float y, float z);
         ~BaseObject();
         
         virtual void draw(GLuint Model) = 0;
@@ -28,9 +30,19 @@ class BaseObject {
         vector<vec4> getVertices();
         vector<vec3> getNormals();
         vector<vec2> getTextures();
+        void loadOBJ(const char * path,	vector<vec4> &vertices,	vector<vec3> &normals);
         mat4 getModel();
+        bool useColor = false;
+        vec4 material_ambient;
+        vec4 material_diffuse;
+        vec4 material_specular;
+        float material_shininess = 256.0;
+        vec4 ambient_product;
+        vec4 diffuse_product;
+        vec4 specular_product;
     private:
         int index;
+
 };
 
 #endif
