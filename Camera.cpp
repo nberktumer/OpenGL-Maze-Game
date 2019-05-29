@@ -44,8 +44,26 @@ void Camera::moveForward(GLuint View, float amount, Boundry_t boundries) {
 }
 
 void Camera::moveRight(GLuint View, float amount, Boundry_t boundries) {
-	eye += amount * cross(viewDirection, up);
-	mat4 view = LookAt(eye, eye + viewDirection, up);
+	vec4 newEye = eye + amount * cross(viewDirection, up);
+	
+	const float cellSize = boundries.cellSize;
+	const float leftBound = boundries.center.z - cellSize / 2;
+	const float rightBound = boundries.center.z + cellSize / 2;
+	const float bottomBound = boundries.center.x - cellSize / 2;
+	const float topBound = boundries.center.x + cellSize / 2;
+
+	if(
+		(boundries.left == 1 && newEye.z <= leftBound)
+		|| (boundries.right == 1 && newEye.z >= rightBound)
+		|| (boundries.bottom == 1 && newEye.x <= bottomBound)
+		|| (boundries.top == 1 && newEye.x >= topBound)
+	) {
+		return;
+	}
+
+	newEye.y = eye.y;
+	eye = newEye;
+	mat4 view = LookAt(newEye, newEye + viewDirection, up);
 	glUniformMatrix4fv(View, 1, GL_TRUE, view);
 
 }
