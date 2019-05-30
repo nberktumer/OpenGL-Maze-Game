@@ -5,7 +5,7 @@ World::World(GLuint program) {
 
     loadTextures();
 
-    // Add Directional Light Source
+    // Add Light Source
     GLuint lightLocation = glGetUniformLocation(program, "LightLocation");
 	GLuint lightPosition = glGetUniformLocation(program, "LightPosition");
 	GLuint ambientProduct = glGetUniformLocation(program, "AmbientProduct");
@@ -21,6 +21,7 @@ World::World(GLuint program) {
     glUniform4fv( lightPosition, 1, light_position );
 	glUniform3fv( lightLocation, 1, light_location );
     
+    // Generate the game object from the 2D map array
     for(int i = 0; i < worldHeight; i++) {
         for(int j = 0; j < worldWidth; j++) {
             int value = map[i][j];
@@ -70,13 +71,11 @@ World::World(GLuint program) {
 }
 
 
-World::~World() {
-}
-
+/**
+ * Adds the given game object with textures to the world and to the object list
+ */
 void World::addObject(BaseObject *object) {
-	//add the object to vector for drawing later
-	//set the objects VAO and buffer its VBO with vertices and normals.
-
+	// Set the objects VAO and buffer its VBO with vertices, normals and texture coordinates.
 	objects.push_back(object);
 	object->setVectorIndex(objects.size() - 1);
 
@@ -90,12 +89,12 @@ void World::addObject(BaseObject *object) {
 
 	glGenVertexArrays(1, &object->vao);
 
-	// Bind to Cube buffer
+	// Bind to buffer
 	glBindVertexArray(object->vao);
 
     glBindTexture(GL_TEXTURE_2D, object->texture);
 
-	// Cube buffer
+	// Buffer
 	glGenBuffers(1, &object->buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, object->buffer);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vec4) + normals.size() * sizeof(vec3) + textures.size() * sizeof(vec2), NULL, GL_STATIC_DRAW);
@@ -103,7 +102,6 @@ void World::addObject(BaseObject *object) {
 	glBufferSubData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vec4), normals.size() * sizeof(vec3), &normals[0]);
     glBufferSubData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vec4) + normals.size() * sizeof(vec3), textures.size() * sizeof(vec2), &textures[0]);
 
-	// Cube vertex arrays
 	glEnableVertexAttribArray(vPosition);
 	glVertexAttribPointer(vPosition, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
 
@@ -114,10 +112,11 @@ void World::addObject(BaseObject *object) {
 	glVertexAttribPointer(vTexture, 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(vertices.size() * sizeof(vec4) + normals.size() * sizeof(vec3)));
 }
 
+/**
+ * Add the given game object with colors to the world and to the object list
+ */
 void World::addObjectWithColor(BaseObject *object) {
-	//add the object to vector for drawing later
-	//set the objects VAO and buffer its VBO with vertices and normals.
-
+	// Set the objects VAO and buffer its VBO with vertices and normals.
 	objects.push_back(object);
 	object->setVectorIndex(objects.size() - 1);
 
@@ -129,17 +128,16 @@ void World::addObjectWithColor(BaseObject *object) {
 
 	glGenVertexArrays(1, &object->vao);
 
-	// Bind to Cube buffer
+	// Bind to buffer
 	glBindVertexArray(object->vao);
 
-	// Cube buffer
+	// Buffer
 	glGenBuffers(1, &object->buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, object->buffer);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vec4) + normals.size() * sizeof(vec3), NULL, GL_STATIC_DRAW);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(vec4), &vertices[0]);
 	glBufferSubData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vec4), normals.size() * sizeof(vec3), &normals[0]);
 
-	// Cube vertex arrays
 	glEnableVertexAttribArray(vPosition);
 	glVertexAttribPointer(vPosition, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
 
@@ -148,32 +146,53 @@ void World::addObjectWithColor(BaseObject *object) {
 
 }
  
+ /**
+  * Draw the object in the object list
+  */ 
 void World::drawObjects(GLuint Model) {
 	for (int i = 0; i < objects.size(); i++) {
 		objects.at(i)->draw(Model);
 	}
 }
 
+/**
+ * Moves the camera to forward
+ */
 void World::moveForward(GLuint View, float amount) {
     camera->moveForward(View, -amount, getBoundries());
 }
 
+/**
+ * Moves the camera to backward
+ */
 void World::moveBackward(GLuint View, float amount) {
     camera->moveForward(View, amount, getBoundries());
 }
 
+/**
+ * Moves the camera to right
+ */
 void World::moveRight(GLuint View, float amount) {
     camera->moveRight(View, amount, getBoundries());
 }
 
+/**
+ * Moves the camera to left
+ */
 void World::moveLeft(GLuint View, float amount) {
     camera->moveRight(View, -amount, getBoundries());
 }
 
+/**
+ * Rotates the camera with respect to the displacement of the mouse
+ */
 void World::rotateCamera(GLuint View, vec2 displacement) {
     camera->rotate(View, displacement);
 }
 
+/**
+ * Get the neighbour positions from the maps for collision detection
+ */ 
 Boundry_t World::getBoundries() {
     vec3 currentPosition = camera->getPosition();
     int i = (currentPosition.x + cellSize / 2) / cellSize;
@@ -208,10 +227,14 @@ Boundry_t World::getBoundries() {
     return boundries;
 }
 
+/**
+ * Load the textures while creating the game
+ */ 
 void World::loadTextures() {
     glGenTextures(2, textureList);
     int n, m;
 
+    // load stone texture
     GLubyte *stone = readTexture("stone.ppm", &n, &m);
 	glBindTexture(GL_TEXTURE_2D, textureList[0]);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, n, m, 0, GL_RGB, GL_UNSIGNED_BYTE, stone);
@@ -221,6 +244,7 @@ void World::loadTextures() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
+    // load grass texture
     GLubyte *grass = readTexture("grass.ppm", &n, &m);
 	glBindTexture(GL_TEXTURE_2D, textureList[1]);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, n, m, 0, GL_RGB, GL_UNSIGNED_BYTE, grass);
@@ -231,6 +255,9 @@ void World::loadTextures() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 }
 
+/**
+ * Read the texture file
+ */
 GLubyte* World::readTexture(string path, int *width, int *height) {
     GLubyte *img;
     FILE *fd;
@@ -270,6 +297,9 @@ GLubyte* World::readTexture(string path, int *width, int *height) {
     return img;
 }
 
+/**
+ * Close the doors at the beginning with animation
+ */
 bool World::closeDoors() {
     door1->position.x += 0.01;
     door2->position.x -= 0.01;
@@ -279,6 +309,9 @@ bool World::closeDoors() {
     return door1->position.x > xPos;
 }
 
+/**
+ * Check if the player has solved the maze
+ */
 bool World::hasReachedTheEnd() {
     vec3 currentPosition = camera->getPosition();
     int i = (currentPosition.x + cellSize / 2) / cellSize;
@@ -287,6 +320,9 @@ bool World::hasReachedTheEnd() {
     return map[i][j] == 3;
 }
 
+/**
+ * Bring the tropy closer with animation
+ */
 bool World::animateTheTropy() {
     tropy->position.z -= 0.05;
 
@@ -299,6 +335,9 @@ bool World::animateTheTropy() {
     return tropy->position.z < zPos;
 }
 
+/**
+ * Rotate the trophy
+ */
 void World::rotateTheTropy() {
     tropy->rotation.y += 1;
 }

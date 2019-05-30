@@ -5,7 +5,7 @@ Wall::Wall(GLuint program, GLuint texture, float x, float y, float z) : BaseObje
 	this->index = 0;
 	this->texture = texture;
 
-	//Create a cube with 6 faces, similar to assignments.
+	//Create a cube with 6 faces
 	quad(0, 1, 5, 4, vec3(0.0, 0.0, 1.0)); // Front
 	quad(1, 2, 6, 5, vec3(1.0, 0.0, 0.0)); // Right
     quad(2, 3, 7, 6, vec3(0.0, 0.0, -1.0)); // Back
@@ -20,11 +20,9 @@ Wall::Wall(GLuint program, GLuint texture, float x, float y, float z) : BaseObje
 	}
 }
 
-
-Wall::~Wall() {
-}
-
-
+/**
+ * Create a square
+ */
 void Wall::quad(int a, int b, int c, int d, vec3 normal) {
 
 	float x = position.x;
@@ -67,6 +65,9 @@ void Wall::quad(int a, int b, int c, int d, vec3 normal) {
 	tex_coords[index++] = vec2(1.0, 0.0);
 }
 
+/**
+ * Render the object
+ */
 void Wall::draw(GLuint Model) {
     glUniform4fv(glGetUniformLocation(program, "AmbientProduct"), 1, World::light_ambient);
 	glUniform4fv(glGetUniformLocation(program, "DiffuseProduct"), 1, World::light_diffuse);

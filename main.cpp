@@ -46,11 +46,10 @@ void init() {
 
     world = new World(program);
 
-    // Enable hiddden surface removal
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
-    // Set state variable "clear color" to clear buffer with.
+    // Set the world color to black.
     glClearColor(0.0, 0.0, 0.0, 1.0);
 }
 
@@ -59,19 +58,18 @@ void init() {
 void display(void) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // Render all the objects in the world
     world->drawObjects(Model);
 
     glutSwapBuffers();
 }
 
 //---------------------------------------------------------------------
-//
-// reshape
-//
 
 void reshape(int w, int h) {
 	glViewport(0, 0, w, h);
 
+    // Use perspective projection
 	mat4 projection = Perspective(45.0, (GLfloat) w / (GLfloat) h, 0.001, 100.0);
 
 	glUniformMatrix4fv(Projection, 1, GL_TRUE, projection);
@@ -86,34 +84,48 @@ void idle(void) {
 
 void keyboard(unsigned char key, int x, int y) {
     switch (key) {
-        case 's': case'S':
+        case 's': case 'S': // Move backwards
             if(gameState != 2)
                 return;
             world->moveBackward(View, 0.1);
             break;
-        case 'w': case 'W':
+        case 'w': case 'W': // Move forward
             if(gameState != 2)
                 return;
             world->moveForward(View, 0.1);
             break;
-        case 'a': case 'A':
+        case 'a': case 'A': // Move left
             if(gameState != 2)
                 return;
             world->moveLeft(View, 0.1);
             break;
-        case 'd': case 'D':
+        case 'd': case 'D': // Move right
             if(gameState != 2)
                 return;
             world->moveRight(View, 0.1);
             break;
-        case '1':
+        case '1': // Reload the world
             world = new World(program);
             gameState = 0;
             break;
+        case 'h': case 'H':
+            cout << "HELP:" << endl << endl;
+            cout << "W: Move Forward" << endl;
+            cout << "A: Move Left" << endl;
+            cout << "S: Move Backwards" << endl;
+            cout << "D: Move Right" << endl << endl;
+            cout << "Mouse: Rotate mouse to look around" << endl << endl;
+            cout << "1: Restart the game" << endl;
+            cout << "H: Help" << endl; 
     }
 }
 
+/**
+ * Looking around with mouse function is taken from Jamie King's OpenGL tutorial
+ * https://www.youtube.com/watch?v=7oNLw9Bct1k
+ */
 void mouse(int x, int y) {
+    // Do not rotate the camera if the game is not ready to play
     if(gameState != 2)
         return;
 
@@ -131,7 +143,7 @@ void mouse(int x, int y) {
 //----------------------------------------------------------------------------
 
 void timer(int p) {
-	if(gameState == 0) {
+    if(gameState == 0) { // Animate the door
         if(world->closeDoors()) { // Close the enterence
             gameState = 1;
         }
@@ -159,7 +171,6 @@ void timer(int p) {
     }
 
 	glutPostRedisplay();
-
 }
 
 

@@ -13,9 +13,6 @@ BaseObject::BaseObject(GLuint program, float x, float y, float z) {
     model = mat4();
 }
 
-BaseObject::~BaseObject() {
-}
-
 int BaseObject::getVectorIndex() {
 	return index;
 }
@@ -40,7 +37,11 @@ mat4 BaseObject::getModel() {
 	return model;
 }
 
-// .obj loader taken from https://github.com/huamulan/OpenGL-tutorial/blob/master/common/objloader.cpp
+/**
+ * Load given object file
+ * 
+ * This function is taken from https://github.com/huamulan/OpenGL-tutorial/blob/master/common/objloader.cpp
+ */
 void BaseObject::loadOBJ(const char * path,	vector<vec4> &vertices,	vector<vec3> &normals) {
 	vector<int> vertexIndices, normalIndices;
 	vector<vec4> temp_vertices; 

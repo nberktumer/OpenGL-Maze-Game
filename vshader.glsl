@@ -13,6 +13,8 @@ uniform mat4 Projection, Model, View, LightLocation;
 uniform vec4 LightPosition;
 
 void main() {
+
+    // Phong shading
     vec4 lightPosition = LightLocation * LightPosition;
     vec3 pos = (View * Model * vPosition).xyz;
 
@@ -23,6 +25,7 @@ void main() {
     if( LightPosition.w != 0.0 ) {
         fL = lightPosition.xyz - pos;  //directional light source
     }
+    
     gl_Position = Projection * View * Model * vPosition;
     coord = vTexture;
 }

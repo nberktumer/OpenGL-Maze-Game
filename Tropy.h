@@ -6,7 +6,6 @@
 class Tropy : public BaseObject {
     public:
         Tropy(GLuint program, float x, float y, float z);
-        ~Tropy();
         void draw(GLuint Model);
 };
 

@@ -13,6 +13,7 @@ uniform int UseColor;
 uniform sampler2D textureSampler;
 
 void main() {
+    // Phong shading
     // Normalize the input lighting vectors
     vec3 N = normalize(fN);
     vec3 V = normalize(fV);
@@ -33,9 +34,9 @@ void main() {
         specular = vec4(0.0, 0.0, 0.0, 1.0);
     }
 
-    if(UseColor == 1) {
+    if(UseColor == 1) { // Use color
         fragColor = ambient + diffuse + specular;
-    } else {
+    } else { // Use texture
         fragColor = texture2D(textureSampler, coord) * (ambient + diffuse + specular);
     }
 }

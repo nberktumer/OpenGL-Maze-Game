@@ -20,7 +20,6 @@ class World {
         inline static vec4 light_specular = vec4(1.0, 1.0, 1.0, 1.0 );
     
         World(GLuint program);
-        ~World();
         void addObject(BaseObject* object);
         void addObjectWithColor(BaseObject* object);
         void drawObjects(GLuint Model);

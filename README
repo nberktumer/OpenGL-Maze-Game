@@ -1,0 +1,5 @@
+Extra Dependencies:
+	- C++17
+	- GLM
+	
+In order to compile the project run "make" command and then start the game with "./maze" command.

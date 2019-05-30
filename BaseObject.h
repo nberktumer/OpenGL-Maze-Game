@@ -21,7 +21,6 @@ class BaseObject {
         GLuint program;
 
         BaseObject(GLuint program, float x, float y, float z);
-        ~BaseObject();
         
         virtual void draw(GLuint Model) = 0;
 
@@ -32,6 +31,8 @@ class BaseObject {
         vector<vec2> getTextures();
         void loadOBJ(const char * path,	vector<vec4> &vertices,	vector<vec3> &normals);
         mat4 getModel();
+
+        // Material and light properties
         bool useColor = false;
         vec4 material_ambient;
         vec4 material_diffuse;

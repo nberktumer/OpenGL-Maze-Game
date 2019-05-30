@@ -6,7 +6,6 @@
 class Path : public BaseObject {
     public:
         Path(GLuint program, GLuint texture, float x, float y, float z);
-        ~Path();
         void quad(int a, int b, int c, int d, vec3 normal);
         void draw(GLuint Model);
         static constexpr float HEIGHT = 0.1;

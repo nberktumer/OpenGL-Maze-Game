@@ -3,6 +3,7 @@
 #include <vector>
 
 Tropy::Tropy(GLuint program, float x, float y, float z) : BaseObject(program, x, y, z) {
+    // set the material properties (Goldish)
     this->useColor = true;
     this->material_ambient = vec4( 0.329412, 0.223529, 0.027451, 1.0 );
     this->material_diffuse = vec4( 0.5, 0.5, 0.0, 1.0 );
@@ -14,12 +15,13 @@ Tropy::Tropy(GLuint program, float x, float y, float z) : BaseObject(program, x,
     this->diffuse_product = World::light_diffuse * material_diffuse;
     this->specular_product = World::light_specular * material_specular;
 
+    // Load the 3D model file
     loadOBJ("tropy.obj", this->vertices, this->normals);
 }
 
-Tropy::~Tropy() {
-}
-
+/**
+ * Render the object
+ */
 void Tropy::draw(GLuint Model) {
     glUniform4fv(glGetUniformLocation(program, "AmbientProduct"), 1, ambient_product);
 	glUniform4fv(glGetUniformLocation(program, "DiffuseProduct"), 1, diffuse_product);

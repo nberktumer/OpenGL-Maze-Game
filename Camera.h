@@ -10,7 +10,6 @@
 class Camera {
     public:
         Camera(GLuint View, vec3 eye, vec3 viewDirection, vec3 up);
-        ~Camera();
         vec3 getPosition();
         void moveForward(GLuint View, float amount, Boundry_t boundries);
         void moveRight(GLuint View, float amount, Boundry_t boundries);
